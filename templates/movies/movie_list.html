@@ -34,13 +34,11 @@
                                 <div class="d-flex flex-wrap">
                                     {% for genre in available_genres %}
                                     <div class="custom-control custom-checkbox mr-3 mb-2">
-                                        <input type="checkbox" 
-                                               class="custom-control-input" 
-                                               id="genre_{{ forloop.counter }}" 
-                                               name="genre" 
-                                               value="{{ genre }}" 
-                                               {% if genre in selected_genre %}checked{% endif %}>
-                                        <label class="custom-control-label text-light" for="genre_{{ forloop.counter }}">{{ genre }}</label>
+                                        <input type="checkbox" class="custom-control-input"
+                                            id="genre_{{ forloop.counter }}" name="genre" value="{{ genre }}" {% if
+                                            genre in selected_genre %}checked{% endif %}>
+                                        <label class="custom-control-label text-light"
+                                            for="genre_{{ forloop.counter }}">{{ genre }}</label>
                                     </div>
                                     {% endfor %}
                                 </div>
@@ -48,17 +46,16 @@
 
                             <!-- Language Filter -->
                             <div class="col-md-6 mb-3">
-                                <h6 class="text-muted text-uppercase font-weight-bold mb-3 small">Filter By Language</h6>
+                                <h6 class="text-muted text-uppercase font-weight-bold mb-3 small">Filter By Language
+                                </h6>
                                 <div class="d-flex flex-wrap">
                                     {% for language in available_languages %}
                                     <div class="custom-control custom-checkbox mr-3 mb-2">
-                                        <input type="checkbox" 
-                                               class="custom-control-input" 
-                                               id="lang_{{ forloop.counter }}" 
-                                               name="language" 
-                                               value="{{ language }}" 
-                                               {% if language in selected_language %}checked{% endif %}>
-                                        <label class="custom-control-label text-light" for="lang_{{ forloop.counter }}">{{ language }}</label>
+                                        <input type="checkbox" class="custom-control-input"
+                                            id="lang_{{ forloop.counter }}" name="language" value="{{ language }}" {% if
+                                            language in selected_language %}checked{% endif %}>
+                                        <label class="custom-control-label text-light"
+                                            for="lang_{{ forloop.counter }}">{{ language }}</label>
                                     </div>
                                     {% endfor %}
                                 </div>
@@ -66,7 +63,8 @@
                         </div>
 
                         <div class="text-right border-top border-secondary pt-3 mt-2">
-                            <a href="{% url 'movie_list' %}" class="btn btn-sm btn-link text-muted mr-2">Reset Filters</a>
+                            <a href="{% url 'movie_list' %}" class="btn btn-sm btn-link text-muted mr-2">Reset
+                                Filters</a>
                             <button type="submit" class="btn btn-primary px-4 btn-sm">Apply Filters</button>
                         </div>
                     </form>
@@ -85,8 +83,15 @@
                         style="height: 380px; object-fit: cover; transition: transform 0.3s ease;">
 
                     <!-- Hover Actions Overlay -->
-                    <div class="movie-overlay d-flex align-items-center justify-content-center">
-                        <a href="{% url 'theater_list' movie.id %}" class="btn btn-primary btn-lg shadow">Book Ticket</a>
+                    <div class="movie-overlay d-flex flex-column align-items-center justify-content-center">
+                        <a href="{% url 'theater_list' movie.id %}" class="btn btn-primary btn-lg shadow mb-3 w-75">Book
+                            Ticket</a>
+                        {% if movie.trailer_url %}
+                        <button type="button" class="btn btn-outline-light btn-sm shadow w-75"
+                            onclick="openTrailer('{{ movie.trailer_url }}', '{{ movie.name }}')">
+                            <i class="fas fa-play mr-1"></i> Watch Trailer
+                        </button>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -135,4 +140,46 @@
     }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+{% if movies %}
+<!-- Trailer Modal -->
+<div class="modal fade" id="trailerModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="trailerModalLabel">Movie Trailer</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe id="homeTrailerIframe" class="embed-responsive-item" src="" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getYouTubeID(url) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function openTrailer(url, name) {
+        const videoId = getYouTubeID(url);
+        if (videoId) {
+            $('#trailerModalLabel').text(name + ' - Trailer');
+            $('#homeTrailerIframe').attr('src', `https://www.youtube.com/embed/${videoId}?autoplay=1`);
+            $('#trailerModal').modal('show');
+        }
+    }
+
+    // Stop video when modal closes
+    $('#trailerModal').on('hide.bs.modal', function () {
+        $('#homeTrailerIframe').attr('src', '');
+    });
+</script>
+{% endif %}
 {% endblock %}

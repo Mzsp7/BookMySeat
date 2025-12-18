@@ -17,6 +17,10 @@ env/
 db.sqlite3
 db.sqlite3-journal
 /media
+!/media/movies/inception.png
+!/media/movies/dark_knight.png
+!/media/movies/interstellar.png
+!/media/movies/avatar.png
 /staticfiles
 
 # IDE
