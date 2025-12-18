@@ -144,13 +144,14 @@ def _send_confirmation_email(user, theater, seat_ids, reference_id):
         """
         
         try:
-            send_mail(
-                subject, message, settings.EMAIL_HOST_USER,
-                [user.email], fail_silently=True
-            )
-            bookings.update(is_email_sent=True)
-        except Exception:
-            pass # Email failure is not critical
+            print(f"DEBUG: Attempting to send email via {settings.EMAIL_HOST_USER} to {user.email}")
+            send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email], fail_silently=False)
+            print(f"DEBUG: Email sent successfully to {user.email}")
+            
+            # Update is_email_sent
+            Booking.objects.filter(payment_id=reference_id).update(is_email_sent=True)
+        except Exception as e:
+            print(f"CRITICAL ERROR: Email failed for User {user.email}: {e}")
 
 def get_admin_metrics(time_filter='7'):
     """Calculates dashboard metrics safely."""

@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -298,7 +299,36 @@ def check_seat_status(request, theater_id):
     seats = Seat.objects.filter(theater=theater).values('id', 'seat_number', 'status')
     return JsonResponse({'seats': list(seats)})
 
-# Unused function for simulating payment success locally
+# View for simulating payment success locally or during demo
 @login_required(login_url='/login/')
 def confirm_booking(request, theater_id):
-    return redirect('home')
+    """
+    Simulation endpoint for Demo/Testing.
+    Automatically confirms booking without real Stripe flow.
+    """
+    theater = get_object_or_404(Theater, id=theater_id)
+    payment_status = request.POST.get('payment_status')
+    
+    if payment_status == 'success':
+        locked_seats = Seat.objects.filter(theater=theater, locked_by=request.user, status='locked')
+        if not locked_seats.exists():
+             return redirect('book_seats', theater_id=theater.id)
+        
+        # Create a fake session object for the service
+        session_data = {
+            'metadata': {
+                'theater_id': str(theater.id),
+                'user_id': str(request.user.id),
+                'seat_ids': ','.join([str(s.id) for s in locked_seats])
+            },
+            'payment_intent': f'demo_{os.urandom(4).hex()}'
+        }
+        
+        from .services import confirm_booking_from_session
+        confirm_booking_from_session(session_data)
+        
+        return render(request, 'movies/booking_success.html', {
+            'theater': theater, 'seats': locked_seats, 'status': 'confirmed'
+        })
+    
+    return redirect('book_seats', theater_id=theater.id)
