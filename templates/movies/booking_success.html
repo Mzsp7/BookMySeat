@@ -1,0 +1,95 @@
+{% extends 'users/basic.html' %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+
+    {% if status == 'pending' %}
+    <!-- Pending State -->
+    <div class="alert alert-warning border-0 shadow-lg mb-5"
+        style="background: rgba(255, 193, 7, 0.1); border-left: 5px solid #ffc107;">
+        <div class="spinner-border text-warning mb-3" role="status" style="width: 3rem; height: 3rem;">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <h2 class="display-4 font-weight-bold text-warning">Verifying Payment...</h2>
+        <p class="lead text-white">We are confirming your transaction with the bank.</p>
+        <p class="small text-muted mt-3"><i class="fas fa-lock"></i> Please do not refresh or go back.</p>
+
+        <div id="long-wait-msg" class="mt-3 text-warning" style="display:none;">
+            <small>Creating your ticket is taking longer than usual...</small>
+            <br>
+            <button onclick="window.location.reload()" class="btn btn-sm btn-outline-warning mt-2">Check Again</button>
+            <p class="small mt-2 text-white-50">If you are testing locally, ensure Stripe CLI is running.</p>
+        </div>
+
+        <script>
+            // Robust Polling
+            const key = 'polling_start_' + "{{ theater.id }}";
+            let start = sessionStorage.getItem(key);
+
+            if (!start) {
+                start = Date.now();
+                sessionStorage.setItem(key, start);
+            }
+
+            const elapsed = Date.now() - parseInt(start);
+
+            if (elapsed > 45000) { // 45 seconds timeout
+                document.getElementById('long-wait-msg').style.display = 'block';
+                sessionStorage.removeItem(key); // Reset for manual retry
+            } else {
+                setTimeout(function () {
+                    window.location.reload();
+                }, 3000);
+            }
+        </script>
+    </div>
+
+    {% else %}
+    <!-- Success State -->
+    <div class="mb-5">
+        <div class="mb-4">
+            <i class="fas fa-check-circle text-success"
+                style="font-size: 5rem; text-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);"></i>
+        </div>
+        <h1 class="font-weight-bold text-white mb-2">Booking Confirmed!</h1>
+        <p class="lead text-muted">Your tickets have been sent to your email.</p>
+    </div>
+    {% endif %}
+
+    <!-- Ticket Card -->
+    <div class="card mx-auto border-0 shadow-lg text-left"
+        style="max-width: 450px; background: #1f1f1f; border-top: 5px solid #e50914;">
+        <div class="card-body p-4">
+            <h4 class="card-title text-white font-weight-bold mb-1">{{ theater.movie.name }}</h4>
+            <p class="card-text text-muted mb-3">{{ theater.name }} | {{ theater.time|date:"D, d M, h:i A" }}</p>
+
+            <div class="d-flex align-items-center mb-3 p-3 rounded" style="background: #252525;">
+                <div class="mr-3 text-center">
+                    <small class="text-uppercase text-muted d-block" style="font-size: 0.7rem;">Seats</small>
+                    <i class="fas fa-couch text-white h4 mb-0"></i>
+                </div>
+                <div class="d-flex flex-wrap">
+                    {% for seat in seats %}
+                    <span class="badge badge-pill mr-1 mb-1 p-2 px-3"
+                        style="{% if status == 'pending' %}background: #ffc107; color: #000;{% else %}background: #28a745; color: #fff;{% endif %} font-size: 0.9rem;">
+                        {{ seat.seat_number }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="text-center">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BOOKING-{{ seats.0.id }}-{{ theater.id }}"
+                    alt="QR Code" class="img-fluid rounded p-2 bg-white" style="width: 120px;">
+                <p class="small text-muted mt-2 mb-0">Start Show This Code at Entry</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5 mb-5">
+        <a href="{% url 'movie_list' %}" class="btn btn-outline-light px-4 py-2">
+            <i class="fas fa-arrow-left mr-2"></i> Book Another Movie
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends "users/basic.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-0"><i class="fas fa-chart-line"></i> Admin Dashboard</h2>
+            <p class="text-muted">System health and booking analytics</p>
+        </div>
+        <div class="col-md-4 text-right">
+            <div class="btn-group" role="group">
+                <a href="?filter=today"
+                    class="btn btn-sm {% if time_filter == 'today' %}btn-primary{% else %}btn-outline-primary{% endif %}">Today</a>
+                <a href="?filter=7"
+                    class="btn btn-sm {% if time_filter == '7' %}btn-primary{% else %}btn-outline-primary{% endif %}">Last
+                    7 Days</a>
+                <a href="?filter=30"
+                    class="btn btn-sm {% if time_filter == '30' %}btn-primary{% else %}btn-outline-primary{% endif %}">Last
+                    30 Days</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Total Bookings</p>
+                            <h3 class="mb-0">{{ total_bookings }}</h3>
+                        </div>
+                        <div class="text-primary">
+                            <i class="fas fa-ticket-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Total Revenue</p>
+                            <h3 class="mb-0">₹{{ total_revenue }}</h3>
+                        </div>
+                        <div class="text-success">
+                            <i class="fas fa-rupee-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Seat Occupancy</p>
+                            <h3 class="mb-0">{{ occupancy_percentage }}%</h3>
+                        </div>
+                        <div class="text-warning">
+                            <i class="fas fa-chair fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Avg/Booking</p>
+                            <h3 class="mb-0">₹200</h3>
+                        </div>
+                        <div class="text-info">
+                            <i class="fas fa-calculator fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-film"></i> Most Booked Movies</h5>
+                </div>
+                <div class="card-body">
+                    {% if most_booked_movies %}
+                    <canvas id="moviesChart" height="200"></canvas>
+                    {% else %}
+                    <p class="text-center text-muted py-5">No booking data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-building"></i> Most Active Theaters</h5>
+                </div>
+                <div class="card-body">
+                    {% if most_active_theaters %}
+                    <canvas id="theatersChart" height="200"></canvas>
+                    {% else %}
+                    <p class="text-center text-muted py-5">No booking data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Bookings Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Recent Bookings</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>User</th>
+                                    <th>Movie</th>
+                                    <th>Theater</th>
+                                    <th>Seat</th>
+                                    <th>Booked At</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in recent_bookings %}
+                                <tr>
+                                    <td>{{ booking.user.username }}</td>
+                                    <td>{{ booking.movie.name }}</td>
+                                    <td>{{ booking.theater.name }}</td>
+                                    <td><span class="badge badge-secondary">{{ booking.seat.seat_number }}</span></td>
+                                    <td>{{ booking.booked_at|date:"M d, Y H:i" }}</td>
+                                    <td><span class="badge badge-success">Confirmed</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">No recent bookings</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<!-- Data for Charts (Django template variables) -->
+{% if most_booked_movies %}
+<script id="moviesData" type="application/json">
+{
+    "labels": [{% for item in most_booked_movies %}"{{ item.movie__name }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+    "data": [{% for item in most_booked_movies %}{{ item.booking_count }}{% if not forloop.last %},{% endif %}{% endfor %}]
+}
+</script>
+{% endif %}
+
+{% if most_active_theaters %}
+<script id="theatersData" type="application/json">
+{
+    "labels": [{% for item in most_active_theaters %}"{{ item.theater__name }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+    "data": [{% for item in most_active_theaters %}{{ item.booking_count }}{% if not forloop.last %},{% endif %}{% endfor %}]
+}
+</script>
+{% endif %}
+
+<!-- Pure JavaScript (no Django template syntax) -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Movies Chart
+        const moviesDataEl = document.getElementById('moviesData');
+        if (moviesDataEl) {
+            const moviesData = JSON.parse(moviesDataEl.textContent);
+            const moviesCtx = document.getElementById('moviesChart').getContext('2d');
+            new Chart(moviesCtx, {
+                type: 'bar',
+                data: {
+                    labels: moviesData.labels,
+                    datasets: [{
+                        label: 'Bookings',
+                        data: moviesData.data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        // Theaters Chart
+        const theatersDataEl = document.getElementById('theatersData');
+        if (theatersDataEl) {
+            const theatersData = JSON.parse(theatersDataEl.textContent);
+            const theatersCtx = document.getElementById('theatersChart').getContext('2d');
+            new Chart(theatersCtx, {
+                type: 'bar',
+                data: {
+                    labels: theatersData.labels,
+                    datasets: [{
+                        label: 'Bookings',
+                        data: theatersData.data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

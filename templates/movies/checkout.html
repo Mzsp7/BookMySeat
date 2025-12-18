@@ -1,0 +1,144 @@
+{% extends 'users/basic.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="mb-4 font-weight-bold">Complete your booking</h2>
+
+            <div class="alert alert-warning shadow-sm border-0 d-flex align-items-center" id="timer-alert">
+                <i class="fas fa-hourglass-half mr-3 fa-lg"></i>
+                <h5 class="mb-0">Time remaining: <span id="timer" class="font-weight-bold ml-2">05:00</span></h5>
+            </div>
+
+            <!-- Booking Summary Card -->
+            <div class="card mb-4 border-0 shadow-lg" style="background: #1f1f1f;">
+                <div class="card-header bg-dark border-bottom border-secondary">
+                    <h5 class="mb-0 text-white">Booking Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img src="{{ theater.movie.image.url }}" alt="{{ theater.movie.name }}"
+                                class="img-fluid rounded mb-3 mb-md-0 shadow">
+                        </div>
+                        <div class="col-md-8">
+                            <h3 class="text-primary font-weight-bold">{{ theater.movie.name }}</h3>
+                            <p class="text-muted h5 mb-3">{{ theater.name }}</p>
+
+                            <!-- Fixed Date/Time Display -->
+                            <p class="text-white h6 mb-4">
+                                <i class="far fa-calendar-alt mr-2 text-warning"></i>
+                                {{ theater.time|date:"D, d M Y" }}
+                                <span class="mx-2">|</span>
+                                <i class="far fa-clock mr-1 text-warning"></i>
+                                {{ theater.time|date:"h:i A" }}
+                            </p>
+                            <hr class="border-secondary">
+
+                            <h6 class="text-uppercase text-muted small font-weight-bold">Selected Seats</h6>
+                            <div class="d-flex flex-wrap mb-4">
+                                {% for seat in seats %}
+                                <span class="badge badge-primary mr-2 mb-2 p-2 px-3 align-middle"
+                                    style="font-size: 1rem;">
+                                    <i class="fas fa-chair mr-1 opacity-50"></i> {{ seat.seat_number }}
+                                </span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center bg-dark p-3 rounded">
+                                <span class="h5 mb-0 text-white">Total Amount</span>
+                                <span class="h3 mb-0 text-success font-weight-bold">INR {{ total_price }}.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger shadow-sm border-0">
+                <i class="fas fa-exclamation-circle mr-2"></i> {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="text-center mb-5">
+                <a href="{% url 'create_checkout_session' theater.id %}"
+                    class="btn btn-primary btn-lg btn-block shadow-lg py-3" id="pay-btn" onclick="showLoader()">
+                    <span class="h5 font-weight-bold mb-0">Pay Now with Stripe</span> <i class="fas fa-lock ml-2"></i>
+                </a>
+                <p class="text-muted small mt-3"><i class="fas fa-shield-alt text-success mr-1"></i> 100% Safe & Secure
+                    Payment</p>
+            </div>
+
+            <!-- Fallback for Dev (Subtle) -->
+            <div class="card bg-dark border-secondary shadow-sm mt-5 opacity-75">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0"><i class="fas fa-tools mr-2"></i>Admin Dev Tools</h6>
+                        <small class="text-muted">Use for testing without payment gateway</small>
+                    </div>
+                    <form action="{% url 'confirm_booking' theater.id %}" method="POST" id="payment-form">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="submit" name="payment_status" value="success"
+                                    class="btn btn-outline-success btn-block btn-sm">Simulate Success</button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" name="payment_status" value="failure"
+                                    class="btn btn-outline-danger btn-block btn-sm">Simulate Failure</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .opacity-75 {
+        opacity: 0.75;
+        transition: opacity 0.3s;
+    }
+
+    .opacity-75:hover {
+        opacity: 1;
+    }
+</style>
+
+<script>
+    // Visual Loader for Payment Button
+    function showLoader() {
+        const btn = document.getElementById('pay-btn');
+        btn.classList.add('btn-loading');
+        btn.innerHTML = "Securely redirecting to Stripe...";
+    }
+
+    // Safe integer parsing corresponding to django variable
+    const initialSeconds = parseInt("{{ remaining_seconds|default:300 }}");
+    let timeLeft = isNaN(initialSeconds) ? 300 : initialSeconds;
+
+    const timerElement = document.getElementById('timer');
+
+    function updateTimer() {
+        if (timeLeft < 0) timeLeft = 0;
+
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerElement.textContent = "00:00";
+            // Gentle redirect without alert spam
+            window.location.href = "{% url 'book_seats' theater.id %}";
+        }
+        timeLeft--;
+    }
+
+    updateTimer();
+    const timerInterval = setInterval(updateTimer, 1000);
+</script>
+{% endblock %}

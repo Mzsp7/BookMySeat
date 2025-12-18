@@ -1,0 +1,138 @@
+{% extends "users/basic.html" %}
+
+{% block content %}
+<div class="py-5">
+    <h2 class="text-center mb-5 font-weight-bold" style="letter-spacing: 1px;">NOW SHOWING</h2>
+
+    <!-- Search & Filter Section -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-10">
+            <!-- Search Bar -->
+            <form method="GET" action="{% url 'movie_list' %}" class="mb-4">
+                <div class="input-group input-group-lg shadow-lg">
+                    <input type="text" class="form-control border-0" style="background: #222; color: #fff;"
+                        name="search" placeholder="Search for movies, events, plays..."
+                        value="{{ request.GET.search|default_if_none:'' }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary px-4" type="submit"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                {% for g in selected_genre %}<input type="hidden" name="genre" value="{{ g }}">{% endfor %}
+                {% for l in selected_language %}<input type="hidden" name="language" value="{{ l }}">{% endfor %}
+            </form>
+
+            <!-- Filters Accordion style -->
+            <div class="card border-0 shadow-lg" style="background: #1f1f1f;">
+                <div class="card-body">
+                    <form method="GET" action="{% url 'movie_list' %}">
+                        <input type="hidden" name="search" value="{{ request.GET.search }}">
+
+                        <div class="row">
+                            <!-- Genre Filter -->
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted text-uppercase font-weight-bold mb-3 small">Filter By Genre</h6>
+                                <div class="d-flex flex-wrap">
+                                    {% for genre in available_genres %}
+                                    <div class="custom-control custom-checkbox mr-3 mb-2">
+                                        <input type="checkbox" 
+                                               class="custom-control-input" 
+                                               id="genre_{{ forloop.counter }}" 
+                                               name="genre" 
+                                               value="{{ genre }}" 
+                                               {% if genre in selected_genre %}checked{% endif %}>
+                                        <label class="custom-control-label text-light" for="genre_{{ forloop.counter }}">{{ genre }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Language Filter -->
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted text-uppercase font-weight-bold mb-3 small">Filter By Language</h6>
+                                <div class="d-flex flex-wrap">
+                                    {% for language in available_languages %}
+                                    <div class="custom-control custom-checkbox mr-3 mb-2">
+                                        <input type="checkbox" 
+                                               class="custom-control-input" 
+                                               id="lang_{{ forloop.counter }}" 
+                                               name="language" 
+                                               value="{{ language }}" 
+                                               {% if language in selected_language %}checked{% endif %}>
+                                        <label class="custom-control-label text-light" for="lang_{{ forloop.counter }}">{{ language }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-right border-top border-secondary pt-3 mt-2">
+                            <a href="{% url 'movie_list' %}" class="btn btn-sm btn-link text-muted mr-2">Reset Filters</a>
+                            <button type="submit" class="btn btn-primary px-4 btn-sm">Apply Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Movie Grid -->
+    <div class="row">
+        {% for movie in movies %}
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm movie-card" style="background: transparent;">
+                <div class="position-relative overflow-hidden rounded">
+                    <img src="{{ movie.image.url }}" class="card-img-top" alt="{{ movie.name }}"
+                        style="height: 380px; object-fit: cover; transition: transform 0.3s ease;">
+
+                    <!-- Hover Actions Overlay -->
+                    <div class="movie-overlay d-flex align-items-center justify-content-center">
+                        <a href="{% url 'theater_list' movie.id %}" class="btn btn-primary btn-lg shadow">Book Ticket</a>
+                    </div>
+                </div>
+
+                <div class="card-body px-0 pt-3 pb-0">
+                    <h5 class="card-title text-white font-weight-bold mb-1">{{ movie.name }}</h5>
+                    <p class="card-text text-muted small mb-1">{{ movie.genre }} | {{ movie.language }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-film empty-icon"></i>
+                <h3>No movies found</h3>
+                <p class="text-muted">Try adjusting your search or filters</p>
+                <a href="{% url 'movie_list' %}" class="btn btn-outline-primary mt-3">View All Movies</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* Scoped visual tweaks */
+    .movie-card img:hover {
+        transform: scale(1.05);
+    }
+
+    .movie-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .movie-card:hover .movie-overlay {
+        opacity: 1;
+    }
+
+    .movie-card:hover img {
+        transform: scale(1.05);
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+{% endblock %}

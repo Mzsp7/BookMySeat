@@ -1,0 +1,169 @@
+{% extends "users/basic.html" %} {% block content %}
+
+<div class="container py-5">
+  <!-- Profile Header -->
+  <div class="row mb-5 align-items-center">
+    <div class="col-md-12">
+      <h2 class="text-white font-weight-bold display-4">My Account</h2>
+      <p class="text-muted lead">Manage your profile and view booking history</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Left Column: User Card & Navigation -->
+    <div class="col-lg-4 mb-4">
+      <div class="card shadow-lg border-0 mb-4" style="background: #1f1f1f;">
+        <div class="card-body text-center py-5">
+          <div class="mb-4 position-relative d-inline-block">
+            <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center mx-auto shadow-inner"
+              style="width: 120px; height: 120px; border: 4px solid #333;">
+              <span class="text-white font-weight-bold display-4">{{ user.username|make_list|first|upper }}</span>
+            </div>
+            <!-- <img src="{{ user.profile.image.url }}" ... if exists -->
+            <div class="position-absolute bg-success rounded-circle border border-dark"
+              style="width: 20px; height: 20px; bottom: 5px; right: 15px;"></div>
+          </div>
+          <h3 class="card-title text-white font-weight-bold mb-1">{{ user.username }}</h3>
+          <p class="text-muted mb-4">{{ user.email }}</p>
+
+          <div class="d-grid gap-2">
+            <a href="{% url 'password_reset' %}" class="btn btn-outline-light btn-block rounded-pill"><i
+                class="fas fa-key mr-2"></i>Reset Password</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats (Optional Polish) -->
+      <div class="row text-center mb-4">
+        <div class="col-6">
+          <div class="card bg-dark border-0 shadow-sm py-3">
+            <h3 class="text-primary font-weight-bold mb-0">{{ bookings.count }}</h3>
+            <small class="text-muted text-uppercase">Bookings</small>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card bg-dark border-0 shadow-sm py-3">
+            <h3 class="text-success font-weight-bold mb-0">Active</h3> <!-- Mock value or status related -->
+            <small class="text-muted text-uppercase">Status</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Forms & Bookings -->
+    <div class="col-lg-8">
+
+      <!-- Profile Form -->
+      <div class="card shadow-lg border-0 mb-5" style="background: #1f1f1f;">
+        <div class="card-header border-bottom border-dark bg-transparent py-3">
+          <h5 class="mb-0 text-white"><i class="fas fa-user-edit mr-2 text-primary"></i> Personal Details</h5>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST">
+            {% csrf_token %}
+            {% for field in u_form %}
+            <div class="form-group mb-4">
+              <label for="{{ field.id_for_label }}" class="text-muted text-uppercase small font-weight-bold">
+                {{ field.label }}
+              </label>
+              {{ field.errors }}
+              <!-- Render field manually or let widget render but add class via JS if needed, 
+                     but standard django widget rendering might need class injection. 
+                     We can wrap it or rely on JS to add .form-control if not present. -->
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text bg-dark border-dark text-muted"><i
+                      class="fas fa-{% if field.name == 'username' %}user{% else %}envelope{% endif %}"></i></span>
+                </div>
+                {{ field }}
+              </div>
+              {% if field.help_text %}
+              <small class="form-text text-muted">{{ field.help_text }}</small>
+              {% endif %}
+            </div>
+            {% endfor %}
+            <div class="text-right">
+              <button class="btn btn-primary px-5 rounded-pill shadow" type="submit">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <hr class="bg-secondary my-5">
+      
+      <!-- Bookings History -->
+      <h4 class="text-white font-weight-bold mb-4"><i class="fas fa-history mr-2 text-secondary"></i> Booking History ({{ bookings.count }})</h4>
+
+      {% if bookings %}
+      <div class="row">
+        {% for booking in bookings %}
+        <div class="col-md-12 mb-3">
+          <div class="card border-0 shadow-sm booking-card" style="background: #252525; transition: transform 0.2s;">
+            <div class="card-body p-0">
+              <div class="d-flex flex-wrap">
+                <div class="col-md-3 p-0">
+                  <!-- Movie Image Placeholder or Real -->
+                   {% if booking.movie.image %}
+                  <img src="{{ booking.movie.image.url }}" class="h-100 w-100 rounded-left"
+                    style="object-fit: cover; min-height: 140px;">
+                    {% else %}
+                    <div class="h-100 w-100 bg-secondary d-flex align-items-center justify-content-center">No Image</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-9 p-4">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h5 class="card-title text-white font-weight-bold mb-2">{{ booking.movie.name }}</h5>
+                      <p class="text-muted mb-1"><i class="fas fa-map-marker-alt mr-2"></i> {{ booking.theater.name }}
+                      </p>
+                      <p class="text-white-50"><i class="far fa-clock mr-2"></i> {{ booking.booked_at|date:"F d, Y • h:i
+                        A" }}</p>
+                    </div>
+                    <div class="text-right">
+                      <span class="badge badge-success p-2 mb-2">CONFIRMED</span><br>
+                      <small class="text-muted">Seat</small>
+                      <h4 class="text-white font-weight-bold">{{ booking.seat.seat_number }}</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="card border-0 shadow-sm bg-dark text-center py-5">
+        <div class="card-body">
+          <i class="fas fa-ticket-alt fa-3x text-secondary mb-3 opacity-50"></i>
+          <p class="text-white-50 lead">You haven't booked any movies yet.</p>
+          <a href="{% url 'movie_list' %}" class="btn btn-outline-primary btn-sm mt-2">Browse Movies</a>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Add dark theme classes to form inputs automatically
+  document.addEventListener('DOMContentLoaded', function () {
+    const inputs = document.querySelectorAll('input[type="text"], input[type="email"]');
+    inputs.forEach(input => {
+      input.classList.add('form-control', 'bg-dark', 'text-white', 'border-dark');
+    });
+  });
+</script>
+
+<style>
+  .booking-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .shadow-inner {
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+</style>
+{% endblock %}

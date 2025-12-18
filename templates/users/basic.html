@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}BookMySeat{% endblock %}</title>
+  <!-- Bootstrap 4 -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+  <!-- Page Loader -->
+  <div id="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <i class="fas fa-ticket-alt mr-2"></i>BookMySeat
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="text-white"><i class="fas fa-bars"></i></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto align-items-center">
+          {% if user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/movies">Movies</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+          {% if user.is_staff %}
+          <li class="nav-item"><a class="nav-link text-warning" href="{% url 'admin_dashboard' %}"><i
+                class="fas fa-chart-line"></i> Dashboard</a></li>
+          {% endif %}
+          <li class="nav-item">
+            <form method="Post" action="{% url 'logout' %}" class="ml-3 my-0">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary btn-sm">Logout</button>
+            </form>
+          </li>
+          {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+          <li class="nav-item"><a class="nav-link btn btn-primary px-4 ml-3 text-white" href="{% url 'register' %}"
+              style="color: white !important;">Register</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div style="margin-top: 100px; min-height: 60vh;">
+    <div class="container">
+      {% block content %} {% endblock %}
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <h5>About BookMySeat</h5>
+          <p class="small text-muted">Your premier destination for booking movie tickets. Experience cinema like never
+            before with our seamless booking platform.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="/">Home</a></li>
+            <li><a href="/movies">Movies</a></li>
+            <li><a href="#">Support</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h5>Connect With Us</h5>
+          <div class="social-icons">
+            <a href="#" class="mr-3"><i class="fab fa-facebook fa-lg"></i></a>
+            <a href="#" class="mr-3"><i class="fab fa-twitter fa-lg"></i></a>
+            <a href="#" class="mr-3"><i class="fab fa-instagram fa-lg"></i></a>
+          </div>
+        </div>
+      </div>
+      <hr class="border-secondary mt-4 mb-4">
+      <div class="text-center small text-muted">
+        &copy; 2024 BookMySeat. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <script>
+    // Loader Fade Out
+    window.addEventListener('load', function () {
+      const loader = document.getElementById('loader');
+      loader.style.opacity = '0';
+      setTimeout(() => {
+        loader.style.display = 'none';
+      }, 500);
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,165 @@
+{% extends "users/basic.html" %}
+
+{% block content %}
+<style>
+    .login-container {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-card {
+        background: #1f1f1f;
+        border: 1px solid #333;
+        color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-header-gradient {
+        background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+        color: #fff;
+        border-bottom: none;
+        padding: 2rem 1rem;
+        text-align: center;
+    }
+
+    /* Input Styling */
+    .form-control {
+        background-color: #2b2b2b !important;
+        border: 1px solid #444 !important;
+        color: #fff !important;
+        height: 50px;
+    }
+
+    .form-control:focus {
+        background-color: #333 !important;
+        border-color: #e50914 !important;
+        box-shadow: 0 0 0 0.2rem rgba(229, 9, 20, 0.25) !important;
+    }
+
+    .input-group-text {
+        background-color: #2b2b2b;
+        border: 1px solid #444;
+        border-right: none;
+        color: #888;
+    }
+
+    .form-floating label {
+        color: #aaa;
+    }
+
+    /* Button */
+    .btn-brand {
+        background-color: #e50914;
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: 1px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-brand:hover {
+        background-color: #ff0f1f;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
+    }
+
+    .link-light-custom {
+        color: #aaa;
+        transition: color 0.2s;
+    }
+
+    .link-light-custom:hover {
+        color: #fff;
+        text-decoration: none;
+    }
+</style>
+
+<div class="login-container">
+    <div class="col-md-5 col-lg-4">
+        <div class="card login-card overflow-hidden">
+            <div class="card-header-gradient">
+                <h3 class="mb-0 font-weight-bold"><i class="fas fa-film mr-2"></i> BookMyShow</h3>
+                <small class="text-white-50">Welcome Back</small>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger small mb-4">
+                        <i class="fas fa-exclamation-circle mr-1"></i> Invalid username or password
+                    </div>
+                    {% endif %}
+
+                    <div class="form-group mb-4">
+                        <label class="text-uppercase small text-muted font-weight-bold mb-2">Username</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text h-100"><i class="fas fa-user"></i></span>
+                            </div>
+                            {{ form.username }}
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="text-uppercase small text-muted font-weight-bold mb-2">Password</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text h-100"><i class="fas fa-lock"></i></span>
+                            </div>
+                            {{ form.password }}
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary border-left-0 bg-dark text-muted" type="button"
+                                    id="togglePassword" style="border-color:#444;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-brand btn-block btn-lg rounded-pill mt-4">
+                        Login
+                    </button>
+
+                    <div class="text-center mt-4 pt-2">
+                        <a href="{% url 'password_reset' %}" class="small link-light-custom">Forgot Password?</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card-footer bg-dark border-top border-secondary text-center py-3">
+                <small class="text-muted">New to BookMyShow?</small>
+                <a href="{% url 'register' %}" class="text-white font-weight-bold ml-1">Sign Up Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add styling classes to Django rendered inputs
+        const inputs = document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="checkbox"])');
+        inputs.forEach(input => {
+            input.classList.add('form-control');
+            if (input.name === 'username') input.placeholder = 'Enter Username';
+            if (input.name === 'password') input.placeholder = 'Enter Password';
+        });
+
+        // Password Toggle Logic
+        const toggleBtn = document.getElementById('togglePassword');
+        const passInput = document.querySelector('input[name="password"]');
+
+        if (toggleBtn && passInput) {
+            toggleBtn.addEventListener('click', function () {
+                const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passInput.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        }
+    });
+</script>
+{% endblock %}
