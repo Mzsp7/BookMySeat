@@ -66,14 +66,25 @@ def confirm_booking_from_session(session_data):
     """
     Process stable booking after successful payment.
     Handles atomic booking creation and async email confirmation.
+    Works with both dicts (simulation) and Stripe Session objects (production).
     """
-    metadata = session_data.get('metadata', {})
-    theater_id = metadata.get('theater_id')
-    user_id = metadata.get('user_id')
-    seat_ids_str = metadata.get('seat_ids')
-    payment_intent = session_data.get('payment_intent', 'manual_entry')
+    # Defensive attribute access
+    if hasattr(session_data, 'metadata'):
+        metadata = session_data.metadata
+    else:
+        metadata = session_data.get('metadata', {})
+
+    if hasattr(session_data, 'payment_intent'):
+        payment_intent = session_data.payment_intent or 'manual_entry'
+    else:
+        payment_intent = session_data.get('payment_intent', 'manual_entry')
+    
+    theater_id = metadata.get('theater_id') if metadata else None
+    user_id = metadata.get('user_id') if metadata else None
+    seat_ids_str = metadata.get('seat_ids') if metadata else None
     
     if not (theater_id and user_id and seat_ids_str):
+        print(f"DEBUG: Missing metadata in session: theater={theater_id}, user={user_id}")
         return False
 
     seat_ids = seat_ids_str.split(',')
@@ -109,6 +120,7 @@ def confirm_booking_from_session(session_data):
                 )
             
             # Application Logic: Schedule Email
+            print(f"DEBUG: Scheduling email for {user.email}...")
             transaction.on_commit(lambda: _send_confirmation_email(user, theater, seat_ids, payment_intent))
             return True
 
