@@ -35,8 +35,7 @@
                                     {% for genre in available_genres %}
                                     <div class="custom-control custom-checkbox mr-3 mb-2">
                                         <input type="checkbox" class="custom-control-input"
-                                            id="genre_{{ forloop.counter }}" name="genre" value="{{ genre }}" {% if
-                                            genre in selected_genre %}checked{% endif %}>
+                                            id="genre_{{ forloop.counter }}" name="genre" value="{{ genre }}" {% if genre in selected_genre %}checked{% endif %}>
                                         <label class="custom-control-label text-light"
                                             for="genre_{{ forloop.counter }}">{{ genre }}</label>
                                     </div>
@@ -52,8 +51,7 @@
                                     {% for language in available_languages %}
                                     <div class="custom-control custom-checkbox mr-3 mb-2">
                                         <input type="checkbox" class="custom-control-input"
-                                            id="lang_{{ forloop.counter }}" name="language" value="{{ language }}" {% if
-                                            language in selected_language %}checked{% endif %}>
+                                            id="lang_{{ forloop.counter }}" name="language" value="{{ language }}" {% if language in selected_language %}checked{% endif %}>
                                         <label class="custom-control-label text-light"
                                             for="lang_{{ forloop.counter }}">{{ language }}</label>
                                     </div>
