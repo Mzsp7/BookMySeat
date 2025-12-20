@@ -1,4 +1,6 @@
+import os
 import stripe
+import threading
 from datetime import timedelta
 from django.conf import settings
 from django.utils import timezone
@@ -119,9 +121,12 @@ def confirm_booking_from_session(session_data):
                     payment_id=payment_intent
                 )
             
-            # Application Logic: Schedule Email
-            print(f"DEBUG: Scheduling email for {user.email}...")
-            transaction.on_commit(lambda: _send_confirmation_email(user, theater, seat_ids, payment_intent))
+            # Application Logic: Schedule Email (Background Thread to prevent blocking redirection)
+            print(f"DEBUG: Scheduling email for {user.email} in background...")
+            def _threaded_email():
+                _send_confirmation_email(user, theater, seat_ids, payment_intent)
+            
+            transaction.on_commit(lambda: threading.Thread(target=_threaded_email).start())
             return True
 
     except Exception as e:

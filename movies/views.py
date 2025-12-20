@@ -174,36 +174,41 @@ def create_checkout_session(request, theater_id):
 @login_required(login_url='/login/')
 def payment_success(request, theater_id):
     """
-    Payment Success Page.
-    Detects if booking is confirmed or pending (webhook latency).
+    Payment Success Page with optimized retrieval.
+    Checks DB first (fast), then Stripe API (slow fallback).
     """
     theater = get_object_or_404(Theater, id=theater_id)
     
-    # 0. Robust Fallback: Verify directly with Stripe if Webhook failed (Localhost safety)
+    # Check 1: Has Webhook already processed it? (FASTEST)
+    booked_seats = Seat.objects.filter(theater=theater, locked_by=request.user, status='booked')
+    if booked_seats.exists():
+        return render(request, 'movies/booking_success.html', {
+            'theater': theater, 'seats': booked_seats, 'status': 'confirmed'
+        })
+
+    # Check 2: Manual Fallback (Retrieve from Stripe - SLOWER)
     session_id = request.GET.get('session_id')
     if session_id:
         try:
             session = stripe.checkout.Session.retrieve(session_id)
             if session.payment_status == 'paid':
                 confirm_booking_from_session(session)
+                # Re-fetch from DB after manual confirmation
+                booked_seats = Seat.objects.filter(theater=theater, locked_by=request.user, status='booked')
+                if booked_seats.exists():
+                    return render(request, 'movies/booking_success.html', {
+                        'theater': theater, 'seats': booked_seats, 'status': 'confirmed'
+                    })
         except Exception as e:
             print(f"Manual Verification Failed: {e}")
 
-    # Case 1: Booking Confirmed (Webhook OR Manual verify ran)
-    booked_seats = Seat.objects.filter(theater=theater, locked_by=request.user, status='booked')
-    if booked_seats.exists():
-        return render(request, 'movies/booking_success.html', {
-            'theater': theater, 'seats': booked_seats, 'status': 'confirmed'
-        })
-    
-    # Case 2: Booking Pending (Wait for webhook)
+    # Case 3: Still Pending? (Let the frontend poll)
     locked_seats = Seat.objects.filter(theater=theater, locked_by=request.user, status='locked')
     if locked_seats.exists():
         return render(request, 'movies/booking_success.html', {
             'theater': theater, 'seats': locked_seats, 'status': 'pending'
         })
         
-    # Case 3: Error (Lost)
     return redirect('book_seats', theater_id=theater.id)
 
 @login_required(login_url='/login/')
