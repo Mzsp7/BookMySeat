@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# BookMySeat
-=======
 # BookMyShow Clone - Movie Ticket Booking Platform
 
 ## 1. Project Overview
@@ -104,12 +101,28 @@ Create a `.env` file or configure your `settings.py` with:
 ### 3. Database Initialization
 Run the included setup script to apply migrations and fixes:
 ```bash
-python setup_project.py
+python scripts/setup_project.py
 ```
 *Note: If you encounter migration issues, try `python manage.py migrate --fake`.*
 
-### 4. Run Server
-Activate the virtual environment and start the server:
+### 4. Fast Run (Recommended)
+We provide convenient scripts to handle everything in one go:
+
+**Windows:**
+```cmd
+run.bat
+```
+
+**Mac/Linux:**
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+---
+
+### 5. Manual Run Server
+If you prefer manual control:
 
 **Windows (PowerShell):**
 ```powershell
@@ -124,6 +137,16 @@ python manage.py runserver
 ```
 
 Access the application at `http://127.0.0.1:8000/`
+
+---
+
+### 6. Production Run
+To run the application with a production-grade server (Gunicorn):
+
+**Linux/Mac:**
+```bash
+gunicorn bookmyseat.wsgi:application
+```
 
 ---
 
@@ -142,8 +165,6 @@ The dashboard provides read-only analytics:
 
 This project demonstrates the application of sound software engineering principles to a common problem. By prioritizing data consistency, handling edge cases, and implementing secure patterns, the system moves beyond a simple prototype to a reliability-focused application suitable for real-world usage.
 
+
 **Submission for NullClass Internship**
 **Developer:** Senior Backend Engineer (Intern)
->>>>>>> 4427f0e (Complete BookMySeat project with Stripe integration, email confirmations, and organized structure)
-# BookMySeat-Django
-# BookMySeat-Django
