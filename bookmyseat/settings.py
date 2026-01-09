@@ -176,7 +176,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 60
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'your-email@gmail.com').strip()
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'your-app-password').strip().replace(' ', '')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'zaidpatil4@gmail.com').strip()
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'Muhammadzaid@zaidpatil4').strip().replace(' ', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
