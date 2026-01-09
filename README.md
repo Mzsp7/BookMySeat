@@ -8,7 +8,7 @@ This project has been updated to meet strict technical audit criteria for produc
 ---
 
 ### 🔴 Task 2 — Ticket Email Confirmation (MANDATORY)
-**Implementation:** Real transactional email delivery via Gmail SMTP (SSL Port 465).
+**Implementation:** Real transactional email delivery via Gmail SMTP (TLS Port 587).
 - **Trigger:** Automatic background thread execution via `services.py` after successful Stripe metadata verification.
 - **Auditor Verification:** 
   1. Book any ticket on the [Live Site](https://bookmyseat-demo.onrender.com).
@@ -18,7 +18,7 @@ This project has been updated to meet strict technical audit criteria for produc
 
 **Backend Implementation:**
 - `movies/services.py`: `_send_confirmation_email` handles the asynchronous SMTP delivery.
-- `bookmyseat/settings.py`: Configured with SSLPort 465 (Cloud-Safe) and credential stripping to prevent misconfiguration.
+- `bookmyseat/settings.py`: Configured with TLS Port 587 (Standard) and credential stripping to prevent misconfiguration.
 
 ---
 
@@ -43,7 +43,7 @@ This project has been updated to meet strict technical audit criteria for produc
 ---
 
 ## 🛠 Tech Stack
-- **Backend:** Django 6.0 (Latest Release)
+- **Backend:** Django 5.1 (Production Optimized)
 - **Database:** SQLite (Demo Production)
 - **Authentication:** Django Internal Auth
 - **Payments:** Stripe Checkout (API & Webhooks)
@@ -51,10 +51,11 @@ This project has been updated to meet strict technical audit criteria for produc
 - **Deployment:** Render (with WhiteNoise for static files)
 
 ## 🔑 Test Credentials
-| Role | URL | Password / Link |
+| Role | Username | Password |
 | :--- | :--- | :--- |
-| **Standard User** | Login Page | Create any account or use `testuser` / `testpass123` |
-| **Admin Dashboard** | Auditor View | [Click Here (Audit Mode)](https://bookmyseat-demo.onrender.com/movies/admin-dashboard/?audit=true) |
+| **Standard User** | `mzsp_` | `pass@123` |
+| **Admin/Staff** | `admin1` | `admin@123` |
+| **Direct Admin View** | [Link] | [Click for Audit Mode](https://bookmyseat-demo.onrender.com/movies/admin-dashboard/?audit=true) |
 
 ---
 
