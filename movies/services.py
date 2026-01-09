@@ -160,14 +160,20 @@ def _send_confirmation_email(user, theater, seat_ids, reference_id):
         Enjoy the movie!
         """
         try:
-            print(f"INFO: Attempting to send email via SMTP to {user.email}")
-            send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email], fail_silently=False)
-            print(f"INFO: Email sent to {user.email} for booking reference {reference_id}")
+            print(f"INFO: Initializing SMTP connection to {user.email}...")
+            send_mail(
+                subject, 
+                message, 
+                settings.EMAIL_HOST_USER, 
+                [user.email], 
+                fail_silently=False
+            )
+            print(f"INFO: SUCCESS - Email accepted by SMTP server for {user.email} (Ref: {reference_id})")
             
             # Update is_email_sent
             Booking.objects.filter(payment_id=reference_id).update(is_email_sent=True)
         except Exception as e:
-            print(f"ERROR: Email delivery failed for {user.email}: {str(e)}")
+            print(f"ERROR: Email delivery failed for {user.email}. System Error: {str(e)}")
         
 
 def get_admin_metrics(time_filter='7'):
