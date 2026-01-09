@@ -282,3 +282,58 @@ h1, h2, h3, h4, h5 {
     margin-bottom: 20px;
     opacity: 0.5;
 }
+/* === MOVIE CARD ENHANCEMENTS === */
+.movie-card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: #1f1f1f;
+}
+
+.movie-card .position-relative {
+    position: relative;
+    overflow: hidden;
+}
+
+.movie-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.movie-card:hover .movie-overlay {
+    opacity: 1;
+}
+
+.movie-card:hover img {
+    transform: scale(1.1);
+}
+
+.btn-outline-danger {
+    color: #ff4d4d;
+    border-color: #ff4d4d;
+}
+
+.btn-outline-danger:hover {
+    background-color: #ff4d4d;
+    border-color: #ff4d4d;
+    color: white;
+}
+
+/* Modal Polish */
+.modal-content {
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}

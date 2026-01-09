@@ -145,9 +145,12 @@
   // Load trailer when modal opens
   $('#trailerModal').on('show.bs.modal', function () {
     const trailerUrl = "{{ movie.trailer_url }}";
+    console.log('Loading theater trailer:', trailerUrl);
     const videoId = getYouTubeID(trailerUrl);
     if (videoId) {
       $('#trailerIframe').attr('src', `https://www.youtube.com/embed/${videoId}?autoplay=1`);
+    } else {
+      console.warn('Invalid trailer URL in theater view:', trailerUrl);
     }
   });
 

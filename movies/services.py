@@ -160,7 +160,7 @@ def _send_confirmation_email(user, theater, seat_ids, reference_id):
         Enjoy the movie!
         """
         try:
-            print(f"INFO: Initializing SMTP connection to {user.email}...")
+            print(f"INFO: SMTP - Initializing connection for {user.email}...")
             send_mail(
                 subject, 
                 message, 
@@ -168,12 +168,14 @@ def _send_confirmation_email(user, theater, seat_ids, reference_id):
                 [user.email], 
                 fail_silently=False
             )
-            print(f"INFO: SUCCESS - Email accepted by SMTP server for {user.email} (Ref: {reference_id})")
-            
-            # Update is_email_sent
+            print(f"INFO: SMTP SUCCESS - Email sent to {user.email} (PaymentID: {reference_id})")
             Booking.objects.filter(payment_id=reference_id).update(is_email_sent=True)
         except Exception as e:
-            print(f"ERROR: Email delivery failed for {user.email}. System Error: {str(e)}")
+            error_msg = str(e)
+            if "Authentication failed" in error_msg or "password" in error_msg.lower():
+                print(f"CRITICAL ERROR: Gmail Authentication Failed. Please verify you are using a 16-character APP PASSWORD, not your regular password. Error: {error_msg}")
+            else:
+                print(f"ERROR: SMTP delivery failed for {user.email}. System Error: {error_msg}")
         
 
 def get_admin_metrics(time_filter='7'):
